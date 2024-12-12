@@ -1,0 +1,50 @@
+CREATE TABLE uploaded_files (
+    id INT AUTO_INCREMENT PRIMARY KEY, -- Primary Key
+    title VARCHAR(255) NOT NULL,       -- Title of the uploaded file
+    file_name VARCHAR(255) NOT NULL,  -- Name of the file
+    status ENUM('accepted', 'pending', 'declined') DEFAULT 'pending', -- Status of the file
+    comment_id INT,                   -- Foreign key to associate a comment
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp for file upload
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Timestamp for last update
+
+    -- Foreign Key Constraint for comment_id (if referencing a comments table)
+    FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE SET NULL
+);
+
+CREATE TABLE job_posts2 (
+    jp_id INT AUTO_INCREMENT PRIMARY KEY,        -- Primary key for unique job post IDs
+    title VARCHAR(255) NOT NULL,                 -- Title of the job post
+    description TEXT NOT NULL,                   -- Detailed description of the job post
+    requirements TEXT NOT NULL,                  -- Job requirements (e.g., skills or experience)
+    deadline DATE NOT NULL,                      -- Application deadline for the job
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Timestamp when the job post is created
+);
+
+CREATE TABLE comments (
+    comment_id INT AUTO_INCREMENT PRIMARY KEY,   -- Primary key for unique comment IDs
+    uploaded_file_id INT,                        -- Foreign key referencing the uploaded file
+    comment_text TEXT NOT NULL,                  -- The actual comment text
+    comment_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp for when the comment was made
+    jp_id INT,                                   -- Foreign key referencing the job post
+
+    -- Foreign Key Constraints
+    FOREIGN KEY (uploaded_file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE,
+    FOREIGN KEY (jp_id) REFERENCES job_posts2(jp_id) ON DELETE CASCADE
+);
+
+CREATE TABLE replies (
+    id INT AUTO_INCREMENT PRIMARY KEY,          -- Primary key for unique reply IDs
+    comment_id INT NOT NULL,                    -- Foreign key referencing the comment
+    reply_text TEXT NOT NULL,                   -- The actual reply text
+    comment_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp for when the reply was made
+
+    -- Foreign Key Constraint
+    FOREIGN KEY (comment_id) REFERENCES comments(comment_id) ON DELETE CASCADE
+);
+
+CREATE TABLE users_password (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,      -- Primary key for unique user IDs
+    username VARCHAR(255) NOT NULL UNIQUE,       -- Unique username for the user
+    password VARCHAR(255) NOT NULL,              -- Password for the user (hashed for security)
+    date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Timestamp for when the user is added
+);
